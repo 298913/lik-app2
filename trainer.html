@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel do Personal</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body>
+
+<header class="topo">
+<h2>Painel do Personal</h2>
+<button onclick="logout()">Sair</button>
+</header>
+
+<h3>Selecionar Usuário</h3>
+
+<select id="listaUsuarios"></select>
+
+<h3>Criar Treino</h3>
+
+<input id="nomeTreino" placeholder="Nome do treino">
+
+<div id="exercicios"></div>
+
+<button onclick="addExercicio()">Adicionar exercício</button>
+<button onclick="publicarTreino()">Publicar treino</button>
+
+<script src="js/firebase.js"></script>
+
+<script>
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* PROTEGER TELA */
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    window.location="login.html";
+  }
+});
+
+/* LOGOUT */
+function logout(){
+  auth.signOut();
+}
+
+/* CARREGAR USUÁRIOS */
+async function carregarUsuarios(){
+
+  const snap = await db.collection("usuarios")
+    .where("role","==","user")
+    .get();
+
+  snap.forEach(doc=>{
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = doc.data().email;
+    listaUsuarios.appendChild(opt);
+  });
+
+}
+
+carregarUsuarios();
+
+/* ADICIONAR EXERCÍCIO */
+function addExercicio(){
+
+  const div = document.createElement("div");
+
+  div.innerHTML = `
+    <input placeholder="Exercício">
+    <input placeholder="Séries">
+    <input placeholder="Carga">
+  `;
+
+  exercicios.appendChild(div);
+}
+
+/* PUBLICAR TREINO */
+async function publicarTreino(){
+
+  const userId = listaUsuarios.value;
+
+  if(!userId){
+    alert("Selecione um usuário");
+    return;
+  }
+
+  const lista = [];
+
+  document.querySelectorAll("#exercicios div").forEach(d=>{
+    const inputs = d.querySelectorAll("input");
+
+    lista.push({
+      nome: inputs[0].value,
+      series: inputs[1].value,
+      carga: inputs[2].value
+    });
+  });
+
+  const treino = {
+    nome: nomeTreino.value,
+    exercicios: lista,
+    criadoEm: new Date()
+  };
+
+  await db.collection("treinos_usuarios")
+    .doc(userId)
+    .set(treino);
+
+  alert("Treino publicado com sucesso 💪");
+}
+
+</script>
+
+</body>
+</html>
