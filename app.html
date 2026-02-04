@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Lik App</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body>
+
+<header class="topo">
+<h2>Lik App</h2>
+<button onclick="logout()">Sair</button>
+<button onclick="toggleDark()">🌙</button>
+</header>
+
+<div class="tabs">
+<button id="tabTreino" class="active" onclick="mostrarTreino()">Treino</button>
+<button id="tabAgua" onclick="mostrarAgua()">Água</button>
+</div>
+
+<!-- TREINO -->
+<section id="secTreino">
+
+<h3>Treino de Hoje</h3>
+
+<div class="exercise">
+<input type="checkbox">
+<span>Agachamento</span>
+<input type="number" placeholder="kg">
+</div>
+
+<div class="exercise">
+<input type="checkbox">
+<span>Supino</span>
+<input type="number" placeholder="kg">
+</div>
+
+<div class="exercise">
+<input type="checkbox">
+<span>Terra</span>
+<input type="number" placeholder="kg">
+</div>
+
+<button onclick="salvarTreino()">Salvar treino</button>
+
+</section>
+
+<!-- AGUA -->
+<section id="secAgua" class="hidden">
+
+<h3>Hidratação</h3>
+
+<input id="aguaInput" type="number" placeholder="ml">
+<button onclick="addAgua(200)">+200</button>
+<button onclick="addAgua(500)">+500</button>
+<button onclick="salvarAgua()">Salvar</button>
+
+<p id="statusAgua">0 ml</p>
+
+</section>
+
+<script src="js/firebase.js"></script>
+
+<script>
+
+const auth = firebase.auth();
+
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    window.location="login.html";
+  }
+});
+
+/* LOGOUT */
+function logout(){
+  auth.signOut();
+}
+
+/* DARK MODE */
+function toggleDark(){
+  document.body.classList.toggle("dark");
+}
+
+/* ABAS */
+function mostrarTreino(){
+  secTreino.style.display="block";
+  secAgua.style.display="none";
+  tabTreino.classList.add("active");
+  tabAgua.classList.remove("active");
+}
+
+function mostrarAgua(){
+  secTreino.style.display="none";
+  secAgua.style.display="block";
+  tabAgua.classList.add("active");
+  tabTreino.classList.remove("active");
+}
+
+/* TREINO */
+function salvarTreino(){
+  alert("Treino salvo (base criada)");
+}
+
+/* HIDRATAÇÃO */
+let aguaHoje = 0;
+
+function addAgua(v){
+  aguaHoje += v;
+  atualizarAgua();
+}
+
+function salvarAgua(){
+  const v = Number(aguaInput.value);
+  aguaHoje += v;
+  aguaInput.value="";
+  atualizarAgua();
+}
+
+function atualizarAgua(){
+  statusAgua.innerText = aguaHoje + " ml";
+}
+
+</script>
+
+</body>
+</html>
