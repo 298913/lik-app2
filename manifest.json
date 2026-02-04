@@ -1,0 +1,8 @@
+{
+  "name": "Lik App",
+  "short_name": "LikApp",
+  "start_url": "login.html",
+  "display": "standalone",
+  "background_color": "#0d6efd",
+  "theme_color": "#0d6efd"
+}
