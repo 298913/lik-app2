@@ -1,7 +1,7 @@
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID"
+  apiKey: "AIzaSyDPsmszltW5cksKnjXF96__B3OclWaiGgA",
+  authDomain: "lik-app-e1d76.firebaseapp.com",
+  projectId: "lik-app-e1d76"
 };
 
 firebase.initializeApp(firebaseConfig);
