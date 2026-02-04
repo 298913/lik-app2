@@ -37,9 +37,6 @@
 
 <script>
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 /* PROTEGER TELA */
 auth.onAuthStateChanged(user=>{
   if(!user){
