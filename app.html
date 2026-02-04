@@ -29,27 +29,9 @@
 <!-- TREINO -->
 <section id="secTreino">
 
-<h3>Treino de Hoje</h3>
+<h3 id="tituloTreino">Treino</h3>
 
-<div class="exercise">
-<input type="checkbox">
-<span>Agachamento</span>
-<input type="number" placeholder="kg">
-</div>
-
-<div class="exercise">
-<input type="checkbox">
-<span>Supino</span>
-<input type="number" placeholder="kg">
-</div>
-
-<div class="exercise">
-<input type="checkbox">
-<span>Terra</span>
-<input type="number" placeholder="kg">
-</div>
-
-<button onclick="salvarTreino()">Salvar treino</button>
+<div id="listaTreino"></div>
 
 </section>
 
@@ -126,6 +108,81 @@ function salvarAgua(){
 
 function atualizarAgua(){
   statusAgua.innerText = aguaHoje + " ml";
+}
+
+
+  async function carregarTreino(){
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  const doc = await db
+    .collection("treinos_usuarios")
+    .doc(user.uid)
+    .get();
+
+  if(!doc.exists){
+    listaTreino.innerHTML = "<p>Nenhum treino atribuído</p>";
+    return;
+  }
+
+  const treino = doc.data();
+
+  tituloTreino.innerText = treino.nome;
+  listaTreino.innerHTML = "";
+
+  treino.exercicios.forEach((ex,i)=>{
+
+    const div = document.createElement("div");
+    div.className="exercise";
+
+    div.innerHTML = `
+      <input type="checkbox" onchange="verificarConclusao()">
+      <span>${ex.nome} (${ex.series})</span>
+      <input type="number" placeholder="Carga" value="${ex.carga}">
+    `;
+
+    listaTreino.appendChild(div);
+  });
+
+}
+
+carregarTreino();
+
+  async function verificarConclusao(){
+
+  const checks = document.querySelectorAll(
+    "#listaTreino input[type=checkbox]"
+  );
+
+  const todosMarcados = [...checks].every(c=>c.checked);
+
+  if(!todosMarcados) return;
+
+  const user = auth.currentUser;
+
+  const historico = [];
+
+  document.querySelectorAll("#listaTreino .exercise")
+    .forEach(d=>{
+      const nome = d.querySelector("span").innerText;
+      const carga = d.querySelector("input[type=number]").value;
+
+      historico.push({nome,carga});
+    });
+
+  await db
+    .collection("historico")
+    .doc(user.uid)
+    .collection("dias")
+    .doc(new Date().toISOString().split("T")[0])
+    .set({
+      treino: tituloTreino.innerText,
+      exercicios: historico,
+      data: new Date()
+    });
+
+  alert("Treino concluído e salvo 💪🔥");
 }
 
 </script>
